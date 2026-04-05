@@ -1,73 +1,57 @@
-# React + TypeScript + Vite
+# chartBriefing v1.0
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+chartBriefing is a specialized utility designed for flight simulation enthusiasts. It transforms complex, data-heavy approach plates into a clean, actionable, MCDU-style interface using Google Gemini AI.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. AI-Powered Extraction
+* Intelligent Parsing: Automatically extracts critical data (Frequencies, Courses, Decision Altitudes, and Missed Approach procedures) from uploaded PDF charts.
+* Procedure Specific: Validates if the requested approach (ILS, RNAV, VOR, etc.) exists in the uploaded document before processing.
 
-## React Compiler
+### 2. Vertical Descent Profile
+* Dynamic SVG Graph: Visualizes the approach path with smart Y-axis scaling based on waypoint altitudes.
+* Configuration Cues: Automatically suggests Flaps and Gear extension points based on altitude and approach segment.
+* Staggered Labels: Advanced SVG logic prevents waypoint text overlap in high-density approach segments.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 3. MCDU-Style Data Viewer
+* Authentic UI: Data is presented in a classic Flight Management Computer (FMC/MCDU) layout for high immersion during simulation.
 
-## Expanding the ESLint configuration
+### 4. Real-Time Weather Integration
+* Live METAR: Fetches real-time weather via the AVWX API.
+* Flight Rules Coding: Color-coded indicators for VFR, MVFR, IFR, and LIFR conditions.
+* Hazard Detection: Extracts RVR, Cloud Layers, and Weather Phenomena (Mist, Rain, etc.).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Installation and Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. Access the app at [https://aakarshanbasubhardwaj.github.io/chartsBriefing/](https://aakarshanbasubhardwaj.github.io/chartsBriefing/)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+2. API Configuration
+   This app requires two API keys to function. These are stored locally in your browser for security:
+   * Google Gemini API Key: Obtain from [Google AI Studio](https://aistudio.google.com/).
+   * AVWX API Key: Obtain from [AVWX](https://account.avwx.rest/getting-started).
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## How to Use
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1. Select Airframe: Choose your aircraft type to set the correct Category (A-D) and Vat speeds.
+2. Enter Destination: Input the 4-letter ICAO code and hit Enter to fetch live weather.
+3. Upload Chart: Drag and drop a PDF approach plate (AIP or ChartFox).
+4. Target Approach: Select the specific approach type from the dropdown.
+5. Extract: Hit Extract Data with AI to generate your briefing.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Design Philosophy: The Lifted Dashboard
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+* Compact Controls: Settings are organized into a 2-column grid to maximize vertical space.
+* High Contrast: Designed for low-light cockpit environments using a deep-space grey and emerald palette.
+* Responsive: Fully functional on tablets (iPad/Android) used as side-displays in home cockpits.
+
+## Disclaimer
+
+FOR FLIGHT SIMULATION USE ONLY. This tool is provided for entertainment purposes. The AI extraction may occasionally misinterpret data. Always cross-check extracted values with official aeronautical publications before use in a flight simulator. Never use this application for real-world navigation.
+
+## Roadmap (v2.0)
+* Runway Specificity: Targeted extraction for specific runway numbers.
+* PDF Side-Preview: View the source chart alongside the extracted data.
+* Virtual First Officer: Voice-narrated approach briefings using Web Speech API.
+* Session Persistence: Auto-save your last briefing via LocalStorage.
+
+Developed for the Flight Sim Community.
