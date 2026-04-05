@@ -6,6 +6,7 @@ interface MCDUProps {
     course?: string;
     transAlt?: string;
     da?: string;
+    approachCat?: string;
     missedApp?: string;
   } | null;
 }
@@ -35,14 +36,14 @@ export default function MCDUCard({ data }: MCDUProps) {
 
       {/* MCDU DATA ROWS */}
       <div className="grid grid-cols-2 gap-x-4">
-        <MCDURow label="Arrival" value={data.airport} />
-        <MCDURow label="Procedure" value={data.procedure} side="R" />
+        <MCDURow label="Arrival" value={data.airport || "----"} />
+        <MCDURow label="Procedure" value={data.procedure || "----"} side="R" />
         
         
-        <MCDURow label="ILS/VOR Freq" value={data.freq} />
+        <MCDURow label="ILS/VOR Freq" value={data.freq || "----"} />
         <MCDURow label="Final CRS" value={data.course ? `${data.course}` : '---'} side="R" />
         
-        <MCDURow label="Trans Alt" value={data.transAlt} />
+        <MCDURow label="Trans Alt" value={data.transAlt || "----"} />
         <MCDURow label="Decision Alt" value={data.da ? `${data.da} FT` : '---'} side="R" />
         
         <MCDURow label="Type / Cat" value={data.approachCat || '---'} />
