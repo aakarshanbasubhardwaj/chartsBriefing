@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { fetchMetar, type WeatherData } from '../utils/weatherService'; // Import our service
-import { extractChartData } from '../utils/aiService';
+import { extractChartData, listAvailableProcedures } from '../utils/aiService';
 import MCDUCard from './MCDUCard';
 import VerticalProfile from './VerticalProfile';
 
@@ -25,11 +25,30 @@ export default function Dashboard() {
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [loadingWeather, setLoadingWeather] = useState(false);
 
-    // Handle PDF Drop
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        if (acceptedFiles.length > 0) setFile(acceptedFiles[0]);
-    }, []);
+    const [availableProcedures, setAvailableProcedures] = useState<string[]>([]);
+    const [isScanning, setIsScanning] = useState(false);
 
+
+
+    // Handle PDF Drop
+    const onDrop = useCallback(async (acceptedFiles: File[]) => {
+        if (acceptedFiles.length > 0) {
+            const selectedFile = acceptedFiles[0];
+            setFile(selectedFile);
+
+            // Trigger Pre-Scan
+            setIsScanning(true);
+            try {
+                const geminiKey = localStorage.getItem('gemini_api_key');
+                const list = await listAvailableProcedures(selectedFile, geminiKey!);
+                setAvailableProcedures(list);
+                if (list.length === 0) setExtractError("No valid approach charts found in this PDF.");
+            } catch (err) {
+                setExtractError("Failed to index the PDF.");
+            }
+            setIsScanning(false);
+        }
+    }, []);
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop, accept: { 'application/pdf': ['.pdf'] }, maxFiles: 1
     });
@@ -96,6 +115,44 @@ export default function Dashboard() {
 
     };
 
+    // 1. On Mount: Load data from localStorage
+    useEffect(() => {
+        const savedData = localStorage.getItem('last_briefing');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            setChartData(parsed.chartData);
+            setIcao(parsed.icao);
+            setWeather(parsed.weather);
+        }
+    }, []);
+
+    // 2. On Data Change: Save to localStorage
+    useEffect(() => {
+        if (chartData) {
+            const session = {
+                chartData,
+                icao,
+                weather,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('last_briefing', JSON.stringify(session));
+        }
+    }, [chartData, weather, icao]);
+
+    const handleReset = () => {
+        // 1. Reset React States
+        setChartData(null);
+        setWeather(null);
+        setIcao('');
+        setFile(null);
+        setApproachType('');
+        setAvailableProcedures([]);
+        setExtractError(null);
+
+        // 2. Clear localStorage (but keep API keys)
+        localStorage.removeItem('last_briefing');
+};
+
 
     return (
         <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -105,7 +162,7 @@ export default function Dashboard() {
 
                 {/* 1. Aircraft Selector */}
                 <div className="bg-gray-900 p-5 rounded-xl border border-gray-700 shadow-lg">
-                    <h3 className="text-white font-bold mb-3">1. Airframe</h3>
+                    <h3 className="text-white font-bold mb-3">Airframe</h3>
                     <select
                         value={selectedAircraft.id}
                         onChange={handleAircraftChange}
@@ -123,7 +180,7 @@ export default function Dashboard() {
 
                 {/* 2. Destination Weather */}
                 <div className="bg-gray-900 p-5 rounded-xl border border-gray-700 shadow-lg">
-                    <h3 className="text-white font-bold mb-3">2. Destination ICAO</h3>
+                    <h3 className="text-white font-bold mb-3">Destination ICAO</h3>
                     <div className="flex space-x-2">
                         <input
                             type="text"
@@ -147,23 +204,6 @@ export default function Dashboard() {
                         </button>
                     </div>
                 </div>
-
-                {/* 3. PDF Upload */}
-                {/* <div
-                    {...getRootProps()}
-                    className={`p-6 text-center rounded-xl border-2 border-dashed cursor-pointer ${isDragActive ? 'border-blue-500 bg-blue-900/20' : 'border-gray-600 bg-gray-900 hover:border-gray-400'
-                        }`}
-                >
-                    <input {...getInputProps()} />
-                    {file ? (
-                        <div className="text-green-400 font-bold truncate">{file.name}</div>
-                    ) : (
-                        <div className="text-gray-300">
-                            <span className="font-bold text-blue-400">Click to upload</span> or drag and drop
-                            <p className="text-xs text-gray-500 mt-2">AIP PDF or ChartFox PDF</p>
-                        </div>
-                    )}
-                </div> */}
 
                 {/* 3. PDF Upload Zone */}
                 <div
@@ -232,36 +272,31 @@ export default function Dashboard() {
                     </div>
                 )}
 
-                {/* 4. Approach Selection */}
-                <div className="bg-gray-900 p-5 rounded-xl border border-gray-700 shadow-lg">
-                    <h3 className="text-white font-bold mb-3 uppercase tracking-tight text-sm">4. Select Approach</h3>
+                <div className="bg-gray-900 p-4 rounded-xl border border-gray-700 shadow-lg">
+                    <h3 className="text-white font-bold mb-3 ">
+                        Target Procedure
+                    </h3>
+
                     <select
                         value={approachType}
                         onChange={(e) => setApproachType(e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white font-mono focus:outline-none focus:border-blue-500 mb-4"
+                        disabled={isScanning || availableProcedures.length === 0}
+                        className="w-full bg-gray-800 border border-gray-600 rounded p-1.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500"
                     >
-                        <option value="">-- SELECT TYPE --</option>
-                        <option value="ILS">ILS (Precision)</option>
-                        <option value="GLS">GLS (GBAS)</option>
-                        <option value="RNAV_LPV">RNAV (LPV)</option>
-                        <option value="RNAV_LNAV_VNAV">RNAV (LNAV/VNAV)</option>
-                        <option value="RNAV_LNAV">RNAV (LNAV Only)</option>
-                        <option value="VOR">VOR</option>
-                        <option value="NDB">NDB</option>
-                        <option value="LOC_LDA">LOC / LDA</option>
+                        {isScanning ? (
+                            <option>INDEXING PDF...</option>
+                        ) : availableProcedures.length > 0 ? (
+                            <>
+                                <option value="">-- SELECT FROM CHART --</option>
+                                {availableProcedures.map((proc, idx) => (
+                                    <option key={idx} value={proc}>{proc}</option>
+                                ))}
+                            </>
+                        ) : (
+                            <option>UPLOAD A CHART TO START</option>
+                        )}
                     </select>
-
                 </div>
-
-                {/* <button
-                    disabled={!file || isExtracting}
-                    onClick={handleExtract}
-                    className={`w-full py-3 rounded font-bold transition-colors ${file ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/50' : 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                        }`}
-                >
-                    {isExtracting ? '🤖 AI Processing...' : 'Extract Data with AI'}
-                </button> */}
-
                 {/* Process Button */}
 
                 <button
@@ -278,6 +313,16 @@ export default function Dashboard() {
                     ) : (
                         "Extract Data with AI"
                     )}
+                </button>
+
+                <button
+                    onClick={handleReset}
+                    className="sm:col-span-2 w-full py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white rounded-lg font-bold text-[10px] tracking-widest transition-all border border-gray-700 flex items-center justify-center gap-2 mt-1"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    CLEAR DATA
                 </button>
             </div>
 

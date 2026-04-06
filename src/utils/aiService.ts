@@ -67,3 +67,22 @@ export async function extractChartData(file: File, apiKey: string, aircraftCateg
         throw new Error("Failed to extract data from chart.");
     }
 }
+
+export async function listAvailableProcedures(file: File, apiKey: string) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+
+  const prompt = `
+    Analyze this PDF and identify all instrument approach procedures mentioned.
+    Return ONLY a JSON array of strings representing the procedure names.
+    Example: ["ILS Rwy 27L", "RNAV (GNSS) Rwy 09", "VOR Rwy 27R"]
+    If none are found, return [].
+  `;
+
+  const pdfPart = await fileToGenerativePart(file);
+  const result = await model.generateContent([prompt, pdfPart]);
+  const response = await result.response;
+  const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+  
+  return JSON.parse(text) as string[];
+}
