@@ -37,7 +37,7 @@ chartBriefing is a specialized utility designed for flight simulation enthusiast
    * **Deepgram API Key (Optional, for Voice):** Obtain from [Deepgram](https://console.deepgram.com/).
 
 ## How to Use
-
+Sample chart PDF - https://aim-india.aai.aero/eaip-v2/eAIP/EC-AD-2.1VILK-en-GB.pdf
 1. **Select Airframe:** Choose your aircraft type to set the correct Category (A-D) and Vat speeds.
 2. **Enter Destination:** Input the 4-letter ICAO code and hit Enter to fetch live weather.
 3. **Upload Chart:** Drag and drop a PDF approach plate (AIP or Navigraph/ChartFox).
