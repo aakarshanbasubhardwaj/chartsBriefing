@@ -174,7 +174,7 @@ export default function Dashboard() {
                     <div className="mt-3 flex justify-between text-sm">
                         <span className="text-xl text-mcdu-text">CAT {selectedAircraft.cat}</span>
                         <span className="text-gray-400">
-                            V<sub className="text-[10px] ml-0.5">at</sub>: {selectedAircraft.speed}
+                            V<sub className="text-[10px] ml-0.5">at</sub> : {selectedAircraft.speed}
                         </span>
                     </div>
                 </div>
@@ -435,6 +435,7 @@ export default function Dashboard() {
                             <div className="max-w-2xl mx-auto space-y-8 w-full">
                                 {chartData ? (
                                     <>
+                                        {/* <VoiceBriefing data={chartData} /> */}
                                         <MCDUCard data={chartData} />
                                         <VerticalProfile data={chartData} />
                                         <div className="w-full pt-8 border-t border-gray-800">

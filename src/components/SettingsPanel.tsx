@@ -4,18 +4,22 @@ import { useState, useEffect } from 'react';
 export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   const [geminiKey, setGeminiKey] = useState('');
   const [weatherKey, setWeatherKey] = useState('');
+  const [deepgramKey, setDeepgramKey] = useState('');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const savedGemini = localStorage.getItem('gemini_api_key');
     const savedWeather = localStorage.getItem('weather_api_key');
+    const savedDeepgram = localStorage.getItem('deepgram_api_key');
     if (savedGemini) setGeminiKey(savedGemini);
     if (savedWeather) setWeatherKey(savedWeather);
+    if (savedDeepgram) setDeepgramKey(savedDeepgram);
   }, []);
 
   const handleSave = () => {
     localStorage.setItem('gemini_api_key', geminiKey);
     localStorage.setItem('weather_api_key', weatherKey);
+    localStorage.setItem('deepgram_api_key', deepgramKey);
     setSaved(true);
     
     // Wait 1 second so they see the "Saved!" text, then close the panel
@@ -59,9 +63,26 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
           type="password"
           value={weatherKey}
           onChange={(e) => setWeatherKey(e.target.value)}
-          placeholder="Optional..."
           className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white focus:outline-none focus:border-green-500"
         />
+        <a href="https://account.avwx.rest/getting-started" target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline mt-1 inline-block">
+          Get a free AVWX key
+        </a>
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-300 mb-1">
+          Deepgram API Key
+        </label>
+        <input
+          type="password"
+          value={deepgramKey}
+          onChange={(e) => setDeepgramKey(e.target.value)}
+          className="w-full bg-gray-800 border border-gray-600 rounded p-2 text-white focus:outline-none focus:border-green-500"
+        />
+        <a href="https://developers.deepgram.com/docs/create-additional-api-keys#create-an-api-key-using-the-deepgram-console" target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:underline mt-1 inline-block">
+          Get a free Deepgram key
+        </a>
       </div>
 
       <button

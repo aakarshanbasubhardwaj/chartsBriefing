@@ -12,16 +12,31 @@ async function fileToGenerativePart(file: File) {
     };
 }
 
+// 1. HELPER FUNCTION: Handles the API call and intercepts 429 Rate Limits
+async function generateWithFallback(genAI: GoogleGenerativeAI, contents: any[]) {
+    try {
+        // Primary Attempt: Gemini 3 Flash Preview
+        const primaryModel = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        return await primaryModel.generateContent(contents);
+    } catch (error: any) {
+        // Check if the error message or status code explicitly mentions "429"
+        if (error?.message?.includes("429") || error?.status === 429) {
+            console.warn("Rate limit (429) hit on Gemini 3 Flash. Falling back to Gemini 2.5 Flash...");
+            
+            // Fallback Attempt: Gemini 2.5 Flash
+            const fallbackModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            return await fallbackModel.generateContent(contents);
+        }
+        
+        // If it's a completely different error (e.g., 400 Bad Request, API key invalid), throw it immediately
+        throw error;
+    }
+}
+
 export async function extractChartData(file: File, apiKey: string, aircraftCategory: string, approachType: string) {
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
 
-        // 1. We remove the 'systemInstruction' line from here to avoid the 400 error.
-        const model = genAI.getGenerativeModel(
-            { model: "gemini-3-flash-preview" },
-        );
-
-        // 2. We put the "Expert Flight Instructor" instructions directly at the start of the prompt.
         const prompt = `
       You are an expert aviation flight instructor. 
       Analyze this PDF. It may contain multiple approach charts.
@@ -55,8 +70,8 @@ export async function extractChartData(file: File, apiKey: string, aircraftCateg
 
         const pdfPart = await fileToGenerativePart(file);
 
-        // Generate the content
-        const result = await model.generateContent([prompt, pdfPart]);
+        // 2. Route the request through fallback helper
+        const result = await generateWithFallback(genAI, [prompt, pdfPart]);
         const responseText = result.response.text();
 
         // Clean up the text just in case the AI added ```json wrapper
@@ -66,25 +81,33 @@ export async function extractChartData(file: File, apiKey: string, aircraftCateg
 
     } catch (error) {
         console.error("AI Extraction failed:", error);
+        alert("Failed to extract data from chart. Please check the console for more details.");
         throw new Error("Failed to extract data from chart.");
+        
     }
 }
 
 export async function listAvailableProcedures(file: File, apiKey: string) {
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
 
-  const prompt = `
-    Analyze this PDF and identify all instrument approach procedures mentioned.
-    Return ONLY a JSON array of strings representing the procedure names.
-    Example: ["ILS Rwy 27L", "RNAV (GNSS) Rwy 09", "VOR Rwy 27R"]
-    If none are found, return [].
-  `;
+        const prompt = `
+            Analyze this PDF and identify all instrument approach procedures mentioned.
+            Return ONLY a JSON array of strings representing the procedure names.
+            Example: ["ILS Rwy 27L", "RNAV (GNSS) Rwy 09", "VOR Rwy 27R"]
+            If none are found, return [].
+        `;
 
-  const pdfPart = await fileToGenerativePart(file);
-  const result = await model.generateContent([prompt, pdfPart]);
-  const response = await result.response;
-  const text = response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-  
-  return JSON.parse(text) as string[];
+        const pdfPart = await fileToGenerativePart(file);
+        
+        // 3. Route the procedure check through the fallback helper
+        const result = await generateWithFallback(genAI, [prompt, pdfPart]);
+        const text = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        return JSON.parse(text) as string[];
+    } catch (error) {
+        console.error("AI List Extraction failed:", error);
+        alert("Failed to list available procedures. Please check the console for more details.");
+        throw new Error("Failed to list available procedures.");
+    }
 }

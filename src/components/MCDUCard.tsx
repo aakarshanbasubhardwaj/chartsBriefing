@@ -1,3 +1,5 @@
+import VoiceBriefing from './VoiceBriefing';
+
 interface MCDUProps {
   data: {
     airport?: string;
@@ -62,8 +64,7 @@ export default function MCDUCard({ data }: MCDUProps) {
 
       {/* SCREEN FOOTER */}
       <div className="mt-8 flex justify-between items-end">
-        <div className="text-[10px] text-gray-600 font-mono">{'<'} RETURN</div>
-        <div className="text-[10px] text-gray-600 font-mono">INSERT {'>'}</div>
+        <VoiceBriefing data={data} />
       </div>
     </div>
   );
