@@ -6,6 +6,7 @@ interface MCDUProps {
     course?: string;
     transAlt?: string;
     da?: string;
+    TDZE?: string;
     approachCat?: string;
     missedApp?: string;
   } | null;
@@ -47,6 +48,7 @@ export default function MCDUCard({ data }: MCDUProps) {
         <MCDURow label="Decision Alt" value={data.da ? `${data.da} FT` : '---'} side="R" />
         
         <MCDURow label="Type / Cat" value={data.approachCat || '---'} />
+        <MCDURow label="TDZE" value={data.TDZE || '---'} side="R" />
 
       </div>
 

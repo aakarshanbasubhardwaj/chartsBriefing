@@ -36,12 +36,14 @@ export async function extractChartData(file: File, apiKey: string, aircraftCateg
       
       {
         "airport": "4 letter ICAO code",
+        "pageNumber": 1,
         "procedure": "Full name, e.g., ${approachType} Rwy 27",
         "approachCat": "Precision, APV, or Non-Precision",
         "freq": "Primary frequency",
         "course": "Final course",
         "transAlt": "Transition Alt",
         "da": "Decision Altitude for CAT ${aircraftCategory}",
+        "TDZE": "Touchdown Zone Elevation",
         "waypoints": [
           {"name": "IAF", "alt": 5000},
           {"name": "IF", "alt": 3000},

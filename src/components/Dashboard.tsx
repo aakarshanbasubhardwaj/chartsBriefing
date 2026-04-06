@@ -4,6 +4,7 @@ import { fetchMetar, type WeatherData } from '../utils/weatherService'; // Impor
 import { extractChartData, listAvailableProcedures } from '../utils/aiService';
 import MCDUCard from './MCDUCard';
 import VerticalProfile from './VerticalProfile';
+import PDFPreview from './PDFPreview';
 
 const aircraftOptions = [
     { id: 'c172', name: 'Cessna 152 / 172', cat: 'A', speed: '< 91 kts' },
@@ -151,7 +152,7 @@ export default function Dashboard() {
 
         // 2. Clear localStorage (but keep API keys)
         localStorage.removeItem('last_briefing');
-};
+    };
 
 
     return (
@@ -284,7 +285,7 @@ export default function Dashboard() {
                         className="w-full bg-gray-800 border border-gray-600 rounded p-1.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500"
                     >
                         {isScanning ? (
-                            <option>INDEXING PDF...</option>
+                            <option>Extracting Procedures...</option>
                         ) : availableProcedures.length > 0 ? (
                             <>
                                 <option value="">-- SELECT FROM CHART --</option>
@@ -436,6 +437,22 @@ export default function Dashboard() {
                                     <>
                                         <MCDUCard data={chartData} />
                                         <VerticalProfile data={chartData} />
+                                        <div className="w-full pt-8 border-t border-gray-800">
+                                            {/* Divider Line */}
+                                            <div className="flex items-center justify-center gap-4 mb-6">
+                                                <div className="h-px bg-gray-800 flex-grow"></div>
+                                                <h3 className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">
+                                                    Reference Chart Source
+                                                </h3>
+                                                <div className="h-px bg-gray-800 flex-grow"></div>
+                                            </div>
+
+                                            {/* The PDF Component */}
+                                            <PDFPreview
+                                                file={file}
+                                                pageNumber={chartData.pageNumber || 1}
+                                            />
+                                        </div>
                                     </>
                                 ) : (
                                     /* Placeholder when no data */
