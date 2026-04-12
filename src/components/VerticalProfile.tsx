@@ -43,10 +43,6 @@ export default function VerticalProfile({ data }: ProfileProps) {
 
   return (
     <div className="bg-gray-950 p-8 rounded-3xl border-2 border-gray-800 shadow-2xl w-full">
-      <h4 className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.4em] mb-8 border-b border-gray-900 pb-4">
-        Vertical Profile
-      </h4>
-
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
         {/* Dynamic Grid */}
         {[yMin, yMax].map((tick) => (

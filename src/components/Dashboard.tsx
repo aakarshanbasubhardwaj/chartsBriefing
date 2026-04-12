@@ -159,7 +159,7 @@ export default function Dashboard() {
         <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
             {/* LEFT COLUMN: Controls */}
-            <div className="md:col-span-1 space-y-3">
+            <div className="md:col-span-1 space-y-3 md:sticky md:self-start">
 
                 {/* 1. Aircraft Selector */}
                 <div className="bg-gray-900 p-5 rounded-xl border border-gray-700 shadow-lg">
@@ -416,52 +416,26 @@ export default function Dashboard() {
                 )}
 
                 {/* CHART DATA PLACEHOLDER */}
-                <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 shadow-lg min-h-[400px] relative overflow-hidden">
+                {/* CHART DATA PLACEHOLDER / MCDU VIEWER */}
+                <div className="w-full">
                     {!chartData && !isExtracting ? (
-                        <div className="h-full flex flex-col items-center justify-center text-center text-gray-600 py-20">
+                        <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 shadow-lg min-h-[400px] flex flex-col items-center justify-center text-center text-gray-600 py-20">
                             <div className="text-5xl mb-4 opacity-20">✈️</div>
                             <p className="text-xl mb-2">Awaiting AI Briefing</p>
                             <p className="text-sm">Upload a PDF chart and click extract to generate your MCDU data.</p>
                         </div>
                     ) : isExtracting ? (
-                        <div className="h-full flex flex-col items-center justify-center space-y-4 py-20">
+                        <div className="bg-gray-900 p-6 rounded-xl border border-gray-700 shadow-lg min-h-[400px] flex flex-col items-center justify-center space-y-4 py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
                             <p className="text-blue-400 font-mono text-sm animate-pulse">READING CHART...</p>
                         </div>
                     ) : (
-                        <div className="animate-in fade-in zoom-in duration-500">
-                            {/* <MCDUCard data={chartData} />
-                            <VerticalProfile data={chartData} /> */}
-                            <div className="max-w-2xl mx-auto space-y-8 w-full">
-                                {chartData ? (
-                                    <>
-                                        {/* <VoiceBriefing data={chartData} /> */}
-                                        <MCDUCard data={chartData} />
-                                        <VerticalProfile data={chartData} />
-                                        <div className="w-full pt-8 border-t border-gray-800">
-                                            {/* Divider Line */}
-                                            <div className="flex items-center justify-center gap-4 mb-6">
-                                                <div className="h-px bg-gray-800 flex-grow"></div>
-                                                <h3 className="text-gray-500 font-mono text-[10px] uppercase tracking-[0.2em]">
-                                                    Reference Chart Source
-                                                </h3>
-                                                <div className="h-px bg-gray-800 flex-grow"></div>
-                                            </div>
-
-                                            {/* The PDF Component */}
-                                            <PDFPreview
-                                                file={file}
-                                                pageNumber={chartData.pageNumber || 1}
-                                            />
-                                        </div>
-                                    </>
-                                ) : (
-                                    /* Placeholder when no data */
-                                    <div className="bg-gray-900 p-10 rounded-xl border border-gray-700 text-center opacity-50">
-                                        <p className="text-gray-500 font-mono">AWAITING CHART UPLOAD</p>
-                                    </div>
-                                )}
-                            </div>
+                        <div className="animate-in fade-in zoom-in duration-500 max-w-2xl mx-auto w-full">
+                            <MCDUCard
+                                data={chartData}
+                                pdfFile={file}
+                                pdfPage={chartData.pageNumber || 1}
+                            />
                         </div>
                     )}
                 </div>

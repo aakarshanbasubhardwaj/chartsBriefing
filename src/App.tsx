@@ -18,11 +18,11 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen p-2 relative">
+    <div className="min-h-screen p-2 pt-0 relative">
       {/* HEADER SECTION */}
-      <header className="flex justify-between items-center mb-8 border-b border-gray-700 pb-4 max-w-4xl mx-auto">
+      <header className="sticky top-0 z-50 bg-[#1a1a1a] pt-4 flex justify-between items-center mb-8 border-b border-gray-700 pb-4 max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold text-white tracking-widest">chartsBriefing</h1>
-        
+
         {/* The button to open settings at any time */}
         <button
           onClick={() => setShowSettings(true)}
@@ -31,11 +31,11 @@ function App() {
           ⚙️ Settings
         </button>
       </header>
-      
+
       {/* MAIN APP AREA */}
       <main className="max-w-5xl mx-auto">
         {/* 1. Dashboard is ALWAYS rendered now, so it never loses its state! */}
-        <Dashboard /> 
+        <Dashboard />
       </main>
 
       {/* SETTINGS OVERLAY (MODAL) */}

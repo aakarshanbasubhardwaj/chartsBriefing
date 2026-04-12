@@ -20,7 +20,7 @@ export default function PDFPreview({ file, pageNumber }: Props) {
 
     return (
         <div className="bg-gray-900 rounded-xl border border-gray-700 overflow-hidden shadow-2xl flex flex-col h-[600px] w-full relative">
-            
+
             <TransformWrapper
                 ref={transformRef}
                 initialScale={0.5}
@@ -29,8 +29,8 @@ export default function PDFPreview({ file, pageNumber }: Props) {
                 centerOnInit={true}
                 limitToBounds={false}
                 onTransformed={(ref) => setScalePercent(Math.round(ref.state.scale * 100))}
-                wheel={{ step: 0.1, smoothStep: 0.005 }} 
-                pinch={{ step: 5 }} 
+                wheel={{ step: 0.1, smoothStep: 0.005 }}
+                pinch={{ step: 5 }}
             >
                 {({ zoomIn, zoomOut, resetTransform }) => (
                     <>
@@ -39,17 +39,24 @@ export default function PDFPreview({ file, pageNumber }: Props) {
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:block">
                                 Source Chart: Page {pageNumber}
                             </span>
-                            
+
                             <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto justify-center sm:justify-end">
                                 <button onClick={() => zoomOut()} className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white text-lg font-bold transition-colors">-</button>
                                 <span className="text-emerald-400 text-xs font-mono w-14 text-center font-bold tracking-wider">
                                     {scalePercent}%
                                 </span>
                                 <button onClick={() => zoomIn()} className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white text-lg font-bold transition-colors">+</button>
-                                <button onClick={() => {
-                                    resetTransform();
-                                    transformRef.current?.centerView();
-                                }} className="bg-gray-900 border border-gray-600 hover:bg-gray-700 px-3 py-1.5 rounded text-gray-300 text-[10px] font-bold ml-2 transition-colors">RESET</button>
+                                <button
+                                    onClick={() => {
+                                        if (transformRef.current) {
+                                            transformRef.current.centerView(0.5, 300);
+                                            setScalePercent(50);
+                                        }
+                                    }}
+                                    className="bg-gray-900 border border-gray-600 hover:bg-gray-700 px-3 py-1.5 rounded text-gray-300 text-[10px] font-bold ml-2 transition-colors"
+                                >
+                                    RESET
+                                </button>
                             </div>
                         </div>
 
@@ -57,9 +64,9 @@ export default function PDFPreview({ file, pageNumber }: Props) {
                         <div className="flex-grow bg-black w-full h-full cursor-grab active:cursor-grabbing relative overflow-hidden">
                             <TransformComponent wrapperStyle={{ width: "100%", height: "100%" }}>
                                 <Document file={file}>
-                                    <Page 
-                                        pageNumber={pageNumber || 1} 
-                                        scale={1.5} 
+                                    <Page
+                                        pageNumber={pageNumber || 1}
+                                        scale={1.5}
                                         renderTextLayer={false}
                                         renderAnnotationLayer={false}
                                         className="shadow-2xl"
