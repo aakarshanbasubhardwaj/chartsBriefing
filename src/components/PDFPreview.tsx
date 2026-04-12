@@ -32,7 +32,7 @@ export default function PDFPreview({ file, pageNumber }: Props) {
                 wheel={{ step: 0.1, smoothStep: 0.005 }}
                 pinch={{ step: 5 }}
             >
-                {({ zoomIn, zoomOut, resetTransform }) => (
+                {({ zoomIn, zoomOut }) => (
                     <>
                         {/* TOOLBAR */}
                         <div className="bg-gray-800 p-3 border-b border-gray-700 flex justify-between items-center z-10 relative">

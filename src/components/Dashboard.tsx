@@ -3,8 +3,6 @@ import { useDropzone } from 'react-dropzone';
 import { fetchMetar, type WeatherData } from '../utils/weatherService'; // Import our service
 import { extractChartData, listAvailableProcedures } from '../utils/aiService';
 import MCDUCard from './MCDUCard';
-import VerticalProfile from './VerticalProfile';
-import PDFPreview from './PDFPreview';
 
 const aircraftOptions = [
     { id: 'c172', name: 'Cessna 152 / 172', cat: 'A', speed: '< 91 kts' },
